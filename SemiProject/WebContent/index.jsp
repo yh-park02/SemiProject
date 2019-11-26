@@ -20,6 +20,9 @@
 		${member.nickname}님 <a href="member/logout">로그아웃</a><br/>
 	</c:if>
 	
+	<!-- 채팅 페이지로 이동 -->
+	<a href="member/chat">채팅</a><br/>
+	
 	<!-- 웹 푸시 출력 영역 -->
 	<h3>Web Push</h3>
 	<div id="pushdisp"></div>
@@ -27,6 +30,8 @@
 	<!-- 신문기사 출력 영역 -->
 	<h3>한겨레 신문 실시간 기사</h3>
 	<ul id="article"></ul>
+	
+	
 </body>
 
 <!-- jquery 사용을 위한 링크 설정 -->
@@ -54,10 +59,10 @@
 			}
 		});
 	}, 1000*5*60);
-
 </script>
 
 <script>
+	
 	//웹 푸시를 요청하는 코드 작성 
 	var eventSource = new EventSource('member/push');
 	eventSource.addEventListener('message', function(e){

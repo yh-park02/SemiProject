@@ -101,6 +101,15 @@ public class MemberController extends HttpServlet {
 			}else {
 				//서비스의 메소드를 호출 
 				boolean res = memberService.login(request);
+				
+				//세션에 저장된 dest 값을 가져온다. 
+				Object dest = request.getSession().getAttribute("dest");
+				request.getSession().removeAttribute("dest");
+				if(dest != null) {
+					response.sendRedirect(dest.toString());
+					return;
+				}
+				
 				//로그인이 성공한 경우는 메인 페이지로 이동 
 				//로그인이 실패한 경우에는 로그인 페이지로 이동 
 				if(res) {
@@ -128,6 +137,13 @@ public class MemberController extends HttpServlet {
 		
 		case "push":
 			memberService.push(request, response);
+			break;
+			
+		case "chat":
+			dispatcher = 
+			request.getRequestDispatcher(
+					"../views/mem/chat.jsp");
+			dispatcher.forward(request, response);
 			break;
 		}
 	}
