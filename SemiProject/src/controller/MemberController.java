@@ -88,12 +88,32 @@ public class MemberController extends HttpServlet {
 		
 		case "login":
 			if("GET".equals(request.getMethod())) {
+				//세션에서 msg의 내용을 가져오기
+				String msg = (String)request.getSession().getAttribute("msg");
+				//세션에서 msg 내용을 삭제하기 
+				request.getSession().removeAttribute("msg");
+				//내용을 request에 저장해서 전송 
+				request.setAttribute("msg", msg);
+				
 				dispatcher = request.getRequestDispatcher(
 						"../views/mem/login.jsp");
 				dispatcher.forward(request, response);
 			}else {
-				
+				//서비스의 메소드를 호출 
+				boolean res = memberService.login(request);
+				//로그인이 성공한 경우는 메인 페이지로 이동 
+				//로그인이 실패한 경우에는 로그인 페이지로 이동 
+				if(res) {
+					response.sendRedirect("../");
+				}else {
+					response.sendRedirect("login");
+				}
 			}
+			break;
+			
+		case "logout":
+			request.getSession().invalidate();
+			response.sendRedirect("login");
 			break;
 		}
 	}

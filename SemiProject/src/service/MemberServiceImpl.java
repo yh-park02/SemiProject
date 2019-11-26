@@ -141,4 +141,37 @@ public class MemberServiceImpl implements MemberService {
 		}
 		return result;
 	}
+
+	@Override
+	public boolean login(HttpServletRequest request) {
+		boolean result = false;
+		
+		try {
+			//파라미터 읽기 
+			String email = request.getParameter("email");
+			String password = request.getParameter("password");
+			
+			//email을 가지고 회원 정보를 가져오기 
+			Member member = memberDao.login(email);
+			//비밀번호 확인 
+			if(member != null && BCrypt.checkpw(
+				password, member.getPassword())) {
+				result = true;
+				//로그인 성공한 경우에는 회원정보를 세션에 저장하고 
+				//필요하다면 데이터베이스에도 기록을 해둔다. 
+				member.setPassword(null);//-password는 null로 저장됨
+				request.getSession().setAttribute("member", member);
+				request.getSession().setAttribute("msg", null);
+			}else {
+				result = false;
+				request.getSession().setAttribute("member", null);
+				request.getSession().setAttribute(
+						"msg", "없는 이메일이거나 잘못된 비밀번호입니다.");	
+			}
+			
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return result;
+	}
 }
