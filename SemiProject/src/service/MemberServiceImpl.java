@@ -1,11 +1,18 @@
 package service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
@@ -173,5 +180,79 @@ public class MemberServiceImpl implements MemberService {
 			System.out.println(e.getMessage());
 		}
 		return result;
+	}
+
+	@Override
+	public boolean getHani(HttpServletRequest request) {
+		boolean result = false;
+		try {
+			//java로 웹에서 문자열 가져오기 - 모든 OS에서 동일하게 사용한다.
+			String addr = "http://www.hani.co.kr/rss/";
+			//위의 URL에 한글이 있으면 한글 부분만 URLEncoder.encode 메소드를
+			//이용해서 인코딩을 해야 한다. 
+			
+			//URL을 생성
+			URL url = new URL(addr);
+			
+			//URL에 연결하는 객체 생성 
+			HttpURLConnection con = 
+				(HttpURLConnection)url.openConnection();
+			
+			//옵션을 설정 
+			con.setConnectTimeout(30000);
+			con.setUseCaches(false);
+			
+			//데이터를 읽어올 스트림을 생성 
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(con.getInputStream()));
+			
+			//데이터 읽기
+			StringBuilder sb = new StringBuilder();
+			while(true) {
+				String line = br.readLine();
+				if(line == null) {
+					break;
+				}
+				sb.append(line + "\n");
+			}
+			//읽은 데이터를 문자열로 변환 
+			String data = sb.toString();
+			//사용한 객체 정리 
+			br.close();
+			con.disconnect();
+			
+			//request 객체에 데이터를 저장 
+			request.setAttribute("result", data);
+			result = true;
+			
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return result;
+	}
+
+	@Override
+	public void push(HttpServletRequest request, HttpServletResponse response) {
+		//출력을 위한 객체 생성
+		PrintWriter pw = null;
+		try {
+			//웹 푸시 출력 형식 설정
+			response.setContentType("text/event-stream");
+			//인코딩 방식 설정
+			response.setCharacterEncoding("utf-8");
+			//출력 객체 생성
+			pw = response.getWriter();
+			//출력 내용 만들기
+			Random r = new Random();
+			int data = r.nextInt(10);
+			//데이터 출력 
+			pw.write("data:"+ data + "\n\n");
+			//일정 시간마다 전송
+			Thread.sleep(10000);
+					
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		pw.close();
 	}
 }

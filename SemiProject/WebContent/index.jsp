@@ -20,5 +20,48 @@
 		${member.nickname}님 <a href="member/logout">로그아웃</a><br/>
 	</c:if>
 	
+	<!-- 웹 푸시 출력 영역 -->
+	<h3>Web Push</h3>
+	<div id="pushdisp"></div>
+	
+	<!-- 신문기사 출력 영역 -->
+	<h3>한겨레 신문 실시간 기사</h3>
+	<ul id="article"></ul>
 </body>
+
+<!-- jquery 사용을 위한 링크 설정 -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>
+	//5분마다 동작하는 타이머를 생성 
+	setInterval(function(){
+		$.ajax({
+			url:'member/hani',
+			data:{},
+			datyType:'xml',
+			success:function(data){
+				//item 태그를 전부 찾아서 순서대로 item에 대입하고 
+				//index에 번호를 대입
+				output = "";
+				//item 태그 안에서 title 태그의 내용을 가져와서 출력 
+				$(data).find('item').each(function(index, item){
+					output += '<li>' + $(this).find('title').text() + 
+					'</li>';
+				});
+				$('#article').html(output);
+			},
+			error:function(req, err){
+				alert('실패');
+			}
+		});
+	}, 1000*5*60);
+
+</script>
+
+<script>
+	//웹 푸시를 요청하는 코드 작성 
+	var eventSource = new EventSource('member/push');
+	eventSource.addEventListener('message', function(e){
+		document.getElementById('pushdisp').innerHTML = e.data;
+	});
+</script>
 </html>

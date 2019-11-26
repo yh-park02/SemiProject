@@ -115,6 +115,20 @@ public class MemberController extends HttpServlet {
 			request.getSession().invalidate();
 			response.sendRedirect("login");
 			break;
+			
+		case "hani":
+			//서비스 메소드 호출
+			memberService.getHani(request);
+			//출력할 페이지로 포워딩 
+			dispatcher = 
+				request.getRequestDispatcher(
+						"../views/mem/hani.jsp");
+				dispatcher.forward(request, response);
+			break;
+		
+		case "push":
+			memberService.push(request, response);
+			break;
 		}
 	}
 
